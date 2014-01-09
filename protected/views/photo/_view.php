@@ -9,15 +9,15 @@
 
         <?php
         echo CHtml::link(
-                Chtml::image('uploads/thumbs/' . $data->filename,
-                             Chtml::encode($data->alt_text),
-                                           array()),
-                                           'uploads/' . $data->filename,
-                                           array(
+            Chtml::image($data->thumb, Chtml::encode($data->alt_text), array()), $data->url, array(
             'rel' => 'colorBox',
             'title' => Chtml::encode($data->alt_text))
         );
         ?>
+    </div>
+
+    <div class="caption">
+        <?php echo CHtml::encode($data->caption); ?>
     </div>
 
 </div>
