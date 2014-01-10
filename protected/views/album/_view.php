@@ -5,29 +5,21 @@
 
 <div class="view">
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('id')); ?>:</b>
-	<?php echo CHtml::link(CHtml::encode($data->id), array('view', 'id'=>$data->id)); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('name')); ?>:</b>
-	<?php echo CHtml::encode($data->name); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('tags')); ?>:</b>
-	<?php echo CHtml::encode($data->tags); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('owner_id')); ?>:</b>
-	<?php echo CHtml::encode($data->owner_id); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('shareable')); ?>:</b>
-	<?php echo CHtml::encode($data->shareable); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('created_dt')); ?>:</b>
-	<?php echo CHtml::encode($data->created_dt); ?>
-	<br />
-
-
+<h2><?php echo CHtml::encode($data->name); ?></h2>
+    <div class="imgWrap">
+        <?php
+        if(isset($data->thumb)) {
+            echo CHtml::link(
+            Chtml::image($data->thumb, '', array()), $this->createUrl('view', array('id'=>$data->id)), array(
+            'rel' => 'colorBox',
+            'title' => Chtml::encode($data->name))
+	        );
+        } else {
+            echo CHtml::link(
+            'No photos availble', $this->createUrl('view', array('id'=>$data->id)), array(
+            'title' => Chtml::encode($data->name))
+	        );        	
+        }
+        ?>
+    </div>
 </div>
