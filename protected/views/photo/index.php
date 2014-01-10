@@ -21,7 +21,7 @@ $colorbox = $this->widget('application.extensions.colorpowered.JColorBox');
 <?php
 $this->widget('zii.widgets.CListView', array(
     'dataProvider' => $dataProvider,
-    'itemView' => '_view',
+    'itemView' => '/photo/_view',
 ));
 ?>
 

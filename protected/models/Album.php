@@ -134,18 +134,11 @@ class Album extends CActiveRecord
 
         $criteria = new CDbCriteria;
 
-        $criteria->compare('name',
-                           $this->name,
-                           true);
-        $criteria->compare('description',
-                           $this->description,
-                           true);
-        $criteria->compare('tags',
-                           $this->tags,
-                           true);
+        $criteria->compare('name', $this->name, true);
+        $criteria->compare('description', $this->description, true);
+        $criteria->compare('tags', $this->tags, true);
 
-        return new CActiveDataProvider($this,
-                                       array(
+        return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
         ));
     }
@@ -180,19 +173,6 @@ class Album extends CActiveRecord
             return true;
         } else {
             return false;
-        }
-    }
-
-    public function getFullName()
-    {
-        if(isset($this->owner->firstname) && isset($this->owner->lastname)) {
-            return $this->owner->firstname . ' ' . $this->owner->lastname;
-        } elseif (isset($this->owner->firstname)) {
-            return $this->owner->firstname;
-        } elseif (isset($this->owner->lastname)) {
-            return $this->owner->lastname;
-        } else {
-            return 'Unknown owner';
         }
     }
 

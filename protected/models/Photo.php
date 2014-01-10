@@ -17,6 +17,7 @@
  * The followings are the available model relations:
  * @property Comment[] $comments
  * @property Album $album
+ * $property integer $commentCount
  */
 class Photo extends CActiveRecord
 {
@@ -63,6 +64,7 @@ class Photo extends CActiveRecord
         return array(
             'comments' => array(self::HAS_MANY, 'Comment', 'photo_id'),
             'album' => array(self::BELONGS_TO, 'Album', 'album_id'),
+            'commentCount' => array(self::STAT, 'Comment', 'photo_id', 'condition' => 'status = :status', 'params' => array(':status' => Comment::STATUS_APPROVED)),
         );
     }
 

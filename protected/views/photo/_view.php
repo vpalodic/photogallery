@@ -9,7 +9,7 @@
 
         <?php
         echo CHtml::link(
-            Chtml::image($data->thumb, Chtml::encode($data->alt_text), array()), $data->url, array(
+                Chtml::image($data->thumb, Chtml::encode($data->alt_text), array()), $data->url, array(
             'rel' => 'colorBox',
             'title' => Chtml::encode($data->alt_text))
         );
@@ -18,6 +18,11 @@
 
     <div class="caption">
         <?php echo CHtml::encode($data->caption); ?>
+    </div>
+    <div class="imgIcons">
+        <?php
+        echo "<span class='textIcon'>{$data->commentCount}</span>";
+        ?>
     </div>
 
 </div>

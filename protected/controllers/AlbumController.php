@@ -66,9 +66,22 @@ class AlbumController extends Controller
      */
     public function actionView($id)
     {
-        $this->render('view',
-                      array(
+        /*        $criteria = new CDbCriteria(array(
+          'condition' => 'album_id = :aid',
+          'params' => array(':aid' => $id))
+          );
+         */
+        $criteria = new CDbCriteria();
+        $criteria->compare('album_id', $id);
+
+        $photos = new CActiveDataProvider('Photo', array('criteria' => $criteria));
+
+//        CVarDumper::dump($photos);
+//        Yii::app()->end();
+
+        $this->render('view', array(
             'model' => $this->loadModel($id),
+            'dataProvider' => $photos,
         ));
     }
 
@@ -86,16 +99,13 @@ class AlbumController extends Controller
         if(isset($_POST['Album'])) {
             $model->attributes = $_POST['Album'];
             if($model->save()) {
-                Yii::app()->user->setFlash('saved',
-                                           'Data saved!');
+                Yii::app()->user->setFlash('saved', 'Data saved!');
             } else {
-                Yii::app()->user->setFlash('failure',
-                                           'Data not saved!');
+                Yii::app()->user->setFlash('failure', 'Data not saved!');
             }
         }
 
-        $this->render('create',
-                      array(
+        $this->render('create', array(
             'model' => $model,
         ));
     }
@@ -115,16 +125,13 @@ class AlbumController extends Controller
         if(isset($_POST['Album'])) {
             $model->attributes = $_POST['Album'];
             if($model->save()) {
-                Yii::app()->user->setFlash('saved',
-                                           'Data saved!');
+                Yii::app()->user->setFlash('saved', 'Data saved!');
             } else {
-                Yii::app()->user->setFlash('failure',
-                                           'Data not saved!');
+                Yii::app()->user->setFlash('failure', 'Data not saved!');
             }
         }
 
-        $this->render('update',
-                      array(
+        $this->render('update', array(
             'model' => $model,
         ));
     }
@@ -150,8 +157,7 @@ class AlbumController extends Controller
     public function actionIndex()
     {
         $dataProvider = new CActiveDataProvider('Album');
-        $this->render('index',
-                      array(
+        $this->render('index', array(
             'dataProvider' => $dataProvider,
         ));
     }
@@ -166,8 +172,7 @@ class AlbumController extends Controller
         if(isset($_GET['Album']))
             $model->attributes = $_GET['Album'];
 
-        $this->render('admin',
-                      array(
+        $this->render('admin', array(
             'model' => $model,
         ));
     }
@@ -183,8 +188,7 @@ class AlbumController extends Controller
     {
         $model = Album::model()->findByPk($id);
         if($model === null)
-            throw new CHttpException(404,
-                                     'The requested page does not exist.');
+            throw new CHttpException(404, 'The requested page does not exist.');
         return $model;
     }
 

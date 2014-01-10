@@ -1,6 +1,7 @@
 <?php
 /* @var $this AlbumController */
 /* @var $model Album */
+/* @var $dataProvider CActiveDataProvider the album photos */
 
 $this->breadcrumbs = array(
     'Albums' => array(
@@ -37,7 +38,11 @@ $this->menu = array(
 );
 ?>
 
-<h1><?php echo $model->name; ?></h1>
-<p class="By">Created by: <?php echo CHtml::encode($model->fullName); ?> on
-<span class="Date"><?php echo $model->created_dt; ?></span></p>
-<p><?php echo CHtml::encode($model->description); ?></p>
+<h1><?php echo CHtml::encode($model->name); ?></h1>
+<p class="By">Created by: <?php echo CHtml::encode($model->owner->fullName); ?> on
+    <span class="Date"><?php echo $model->created_dt; ?></span></p>
+<p class=""><?php echo CHtml::encode($model->description); ?></p>
+
+<?php
+$this->renderPartial('/photo/index', array('dataProvider' => $dataProvider));
+?>
