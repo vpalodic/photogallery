@@ -22,4 +22,9 @@
         }
         ?>
     </div>
+    <div class="imgIcons">
+        <?php
+        echo "<span class='textIcon'>{$data->photoCount}</span>";
+        ?>
+    </div>
 </div>

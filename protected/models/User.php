@@ -128,11 +128,11 @@ class User extends CActiveRecord
      */
     public function getFullName()
     {
-        if(isset($this->firstname) && isset($this->lastname)) {
+        if(!empty($this->firstname) && !empty($this->lastname)) {
             return $this->firstname . ' ' . $this->lastname;
-        } elseif(isset($this->firstname)) {
+        } elseif(!empty($this->firstname)) {
             return $this->firstname;
-        } elseif(isset($this->lastname)) {
+        } elseif(!empty($this->lastname)) {
             return $this->lastname;
         } else {
             return 'Unknown';

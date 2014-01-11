@@ -16,6 +16,7 @@
  * The followings are the available model relations:
  * @property User $owner
  * @property Photo[] $photos
+ * $property integer $photoCount
  */
 class Album extends CActiveRecord
 {
@@ -75,6 +76,10 @@ class Album extends CActiveRecord
                 'owner_id'),
             'photos' => array(
                 self::HAS_MANY,
+                'Photo',
+                'album_id'),
+            'photoCount' => array(
+                self::STAT,
                 'Photo',
                 'album_id'),
         );

@@ -1,7 +1,7 @@
 <?php
 /* @var $this PhotoController */
 /* @var $model Photo */
-
+if($this instanceof PhotoController) {
 $this->breadcrumbs=array(
 	'Photos'=>array('index'),
 	$model->id,
@@ -14,6 +14,7 @@ $this->menu=array(
 	array('label'=>'Delete Photo', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
 	array('label'=>'Manage Photo', 'url'=>array('admin')),
 );
+}
 ?>
 
 <h1>View Photo #<?php echo $model->id; ?></h1>
