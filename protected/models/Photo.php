@@ -81,8 +81,8 @@ class Photo extends CActiveRecord
             'alt_text' => 'Alt Text',
             'tags' => 'Tags',
             'sort_order' => 'Sort Order',
-            'created_dt' => 'Created Dt',
-            'lastupdate_dt' => 'Lastupdate Dt',
+            'created_dt' => 'Created Date',
+            'lastupdate_dt' => 'Last Updated Date',
         );
     }
 
@@ -137,7 +137,7 @@ class Photo extends CActiveRecord
     public function getImageParam()
     {
         if(empty($this->_uploads)) {
-            $this->_uploads = Yii::app()->params['uploads'] . "/";
+            $this->_uploads = Yii::app()->getBaseUrl() . Yii::app()->params['uploads'] . "/";
         }
 
         return $this->_uploads;
@@ -159,6 +159,15 @@ class Photo extends CActiveRecord
     public function getThumb()
     {
         return $this->imageParam . "thumbs/" . CHtml::encode($this->filename);
+    }
+
+    /**
+     * Returns the full path to the photo's thumbnail file
+     * @return string a formatted image tag for the thumbnail
+     */
+    public function getThumbnail()
+    {
+        return CHtml::image($this->thumb, $this->alt_text);
     }
 
 }

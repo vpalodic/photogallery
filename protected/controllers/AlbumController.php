@@ -40,7 +40,8 @@ class AlbumController extends Controller
                 'allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array(
                     'create',
-                    'update'),
+                    'update',
+                    'upload',),
                 'users' => array(
                     '@'),
             ),
@@ -74,7 +75,8 @@ class AlbumController extends Controller
         $criteria = new CDbCriteria();
         $criteria->compare('album_id', $id);
 
-        $photos = new CActiveDataProvider('Photo', array('criteria' => $criteria));
+        $photos = new CActiveDataProvider('Photo', array(
+            'criteria' => $criteria));
 
 //        CVarDumper::dump($photos);
 //        Yii::app()->end();
@@ -131,8 +133,17 @@ class AlbumController extends Controller
             }
         }
 
+        Yii::import('xupload.models.XUploadForm');
+        $uploads = new XUploadForm;
+
+        $photos = new Photo('search');
+        $photos->unsetAttributes();
+        $photos->album_id = $id;
+
         $this->render('update', array(
             'model' => $model,
+            'uploads' => $uploads,
+            'photos' => $photos,
         ));
     }
 
@@ -175,6 +186,107 @@ class AlbumController extends Controller
         $this->render('admin', array(
             'model' => $model,
         ));
+    }
+
+    /**
+     * Manage image uploads using XUpload extension.
+     *
+     * @param integer $id the album_id the images belong to.
+     */
+    public function actionUpload($id = 0)
+    {
+        Yii::import("xupload.models.XUploadForm");
+        // Here we define the paths where the files will be stored temporarily
+        $path = realpath(dirname(Yii::app()->request->scriptFile) . Yii::app()->params['uploads']) . DIRECTORY_SEPARATOR;
+        $publicPath = Yii::app()->getBaseUrl() . Yii::app()->params['uploads'] . "/";
+
+        // This is for IE which doens't handle 'Content-type: application/json' correctly
+        header('Vary: Accept');
+        if(isset($_SERVER['HTTP_ACCEPT']) && (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
+
+        // Here we check if we are deleting an uploaded file
+        if(isset($_GET["_method"])) {
+            if($_GET["_method"] == "delete") {
+                if($_GET["file"][0] !== '.') {
+                    $file = $_GET["file"];
+                    if(is_file($path . $file)) {
+                        $photo = Photo::model()->find('filename=:filename', array(':filename' => $file));
+                        if($photo)
+                            $photo->delete();
+                        unlink($path . $file);
+                        unlink($path . "thumbs/" . $file);
+                    }
+                }
+                echo json_encode(true);
+            }
+        } else {
+            $model = new XUploadForm;
+            $model->file = CUploadedFile::getInstance($model, 'file');
+            // We check that the file was successfully uploaded
+            if($model->file !== null) {
+                // Grab some data
+                $model->mime_type = $model->file->getType();
+                $model->size = $model->file->getSize();
+                $model->name = $model->file->getName();
+                //(optional) Generate a random name for our file
+                $filename = $model->name;
+//                $filename = md5(Yii::app()->user->id . microtime() . $model->name);
+//                $filename .= "." . $model->file->getExtensionName();
+                if($model->validate()) {
+                    // Move our file to our temporary dir
+                    $model->file->saveAs($path . $filename);
+//                    chmod($path . $filename, 0777);
+                    // here you can also generate the image versions you need
+                    // using something like PHPThumb
+                    $image = Yii::app()->image->load($path . $filename);
+                    $size = Yii::app()->params['thumbSize'];
+                    $image->resize($size, $size)->quality(75)->sharpen(20);
+                    $image->save($path . "thumbs/" . $filename, FALSE);
+
+                    $photo = new Photo;
+                    $photo->album_id = $id;
+                    $photo->filename = $filename;
+                    if($photo->save()) {
+                        // Now we need to tell our widget that the upload was succesfull
+                        // We do so, using the json structure defined in
+                        // https://github.com/blueimp/jQuery-File-Upload/wiki/Setup
+                        echo json_encode(array(array(
+                                "name" => $model->name,
+                                "id" => $id,
+                                "type" => $model->mime_type,
+                                "size" => $model->size,
+                                "url" => $publicPath . $filename,
+                                "thumbnail_url" => $publicPath . "thumbs/$filename",
+                                "delete_url" => $this->createUrl("upload", array(
+                                    "_method" => "delete",
+                                    "file" => $filename
+                                )),
+                                "delete_type" => "POST"
+                        )));
+                    } else {
+                        //If the upload failed for some reason we log some data and let the widget know
+                        echo json_encode(array(
+                            array("error" => $model->getErrors('file'),
+                        )));
+
+                        Yii::log("XUploadAction: " . CVarDumper::dumpAsString($model->getErrors()), CLogger::LEVEL_ERROR, "xupload.actions.XUploadAction");
+                    }
+                } else {
+                    // If the upload failed for some reason we log some data and let the widget know
+                    echo json_encode(array(
+                        array("error" => $model->getErrors('file'),
+                    )));
+                    Yii::log("XUploadAction: " . CVarDumper::dumpAsString($model->getErrors()), CLogger::LEVEL_ERROR, "xupload.actions.XUploadAction"
+                    );
+                }
+            } else {
+                throw new CHttpException(500, "Could not upload file");
+            }
+        }
     }
 
     /**

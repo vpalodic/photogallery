@@ -66,8 +66,7 @@ class PhotoController extends Controller
      */
     public function actionView($id)
     {
-        $this->render('view',
-                      array(
+        $this->render('view', array(
             'model' => $this->loadModel($id),
         ));
     }
@@ -91,8 +90,7 @@ class PhotoController extends Controller
                     'id' => $model->id));
         }
 
-        $this->render('create',
-                      array(
+        $this->render('create', array(
             'model' => $model,
         ));
     }
@@ -117,8 +115,7 @@ class PhotoController extends Controller
                     'id' => $model->id));
         }
 
-        $this->render('update',
-                      array(
+        $this->render('update', array(
             'model' => $model,
         ));
     }
@@ -130,7 +127,17 @@ class PhotoController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->loadModel($id)->delete();
+        $photo = $this->loadModel($id);
+
+        $path = realpath(dirname(Yii::app()->request->scriptFile) . Yii::app()->params['uploads']) . DIRECTORY_SEPARATOR;
+
+        if($photo) {
+            if(is_file($path . $photo->filename)) {
+                unlink($path . $photo->filename);
+                unlink($path . "thumbs/" . $photo->filename);
+            }
+            $photo->delete();
+        }
 
         // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
         if(!isset($_GET['ajax']))
@@ -146,8 +153,7 @@ class PhotoController extends Controller
         $this->layout = '//layouts/column1';
 
         $dataProvider = new CActiveDataProvider('Photo');
-        $this->render('index',
-                      array(
+        $this->render('index', array(
             'dataProvider' => $dataProvider,
         ));
     }
@@ -162,8 +168,7 @@ class PhotoController extends Controller
         if(isset($_GET['Photo']))
             $model->attributes = $_GET['Photo'];
 
-        $this->render('admin',
-                      array(
+        $this->render('admin', array(
             'model' => $model,
         ));
     }
@@ -179,8 +184,7 @@ class PhotoController extends Controller
     {
         $model = Photo::model()->findByPk($id);
         if($model === null)
-            throw new CHttpException(404,
-                                     'The requested page does not exist.');
+            throw new CHttpException(404, 'The requested page does not exist.');
         return $model;
     }
 

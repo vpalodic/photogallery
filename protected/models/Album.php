@@ -97,6 +97,13 @@ class Album extends CActiveRecord
     public function scopes()
     {
         return array(
+            'mine' => array(
+                'order' => 'created_dt DESC',
+                'condition' => 'owner_id = :owner',
+                'params' => array(
+                    'owner' => Yii::app()->user->id,
+                )
+            ),
             'shareable' => array(
                 'order' => 'created_dt DESC',
                 'condition' => 'shareable = 1',
@@ -117,7 +124,7 @@ class Album extends CActiveRecord
             'tags' => 'Tags',
             'owner_id' => 'Owner',
             'shareable' => 'Shareable',
-            'created_dt' => 'Created Dt',
+            'created_dt' => 'Created Date',
         );
     }
 
@@ -142,6 +149,9 @@ class Album extends CActiveRecord
         $criteria->compare('name', $this->name, true);
         $criteria->compare('description', $this->description, true);
         $criteria->compare('tags', $this->tags, true);
+        $criteria->compare('shareable', $this->shareable);
+        $criteria->compare('created_dt', $this->created_dt, true);
+        $criteria->scopes = 'mine';
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

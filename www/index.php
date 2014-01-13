@@ -17,7 +17,9 @@ $config = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR .
  */
 function d2l($what, $level = CLogger::LEVEL_INFO, $where = 'fb.somewhere', $highlight = false)
 {
-    $what = CVarDumper::dump($what, 20, $highlight);
+    if(is_array($what) || is_object($what)) {
+        $what = CVarDumper::dump($what, 10, $highlight);
+    }
 
     Yii::log($what, $level, 'application.' . $where, $highlight);
 }

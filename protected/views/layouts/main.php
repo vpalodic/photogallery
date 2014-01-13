@@ -15,8 +15,6 @@
         <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/main.css" />
         <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css" />
 
-        <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/screen.css" media="screen, projection" />
-
         <title><?php echo CHtml::encode($this->pageTitle); ?></title>
     </head>
 
@@ -30,8 +28,7 @@
 
             <div id="mainmenu">
                 <?php
-                $this->widget('zii.widgets.CMenu',
-                              array(
+                $this->widget('zii.widgets.CMenu', array(
                     'items' => array(
                         array(
                             'label' => 'Home',
@@ -60,16 +57,15 @@
                 ));
                 ?>
             </div><!-- mainmenu -->
-<?php if(isset($this->breadcrumbs)): ?>
-    <?php
-    $this->widget('zii.widgets.CBreadcrumbs',
-                  array(
-        'links' => $this->breadcrumbs,
-    ));
-    ?><!-- breadcrumbs -->
-<?php endif ?>
+            <?php if(isset($this->breadcrumbs)): ?>
+                <?php
+                $this->widget('zii.widgets.CBreadcrumbs', array(
+                    'links' => $this->breadcrumbs,
+                ));
+                ?><!-- breadcrumbs -->
+            <?php endif ?>
 
-<?php echo $content; ?>
+            <?php echo $content; ?>
 
             <div class="clear"></div>
 

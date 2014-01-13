@@ -5,34 +5,46 @@
     Description:
         Purpose of the stylesheet follows.
 */
+
 /** General **/
 div.view {
-    width: 185px;
+    width: 222px;
     float:left;
     background: #F7F7F7;
     margin-right: 20px;
-    min-height: 175px;
+    min-height: 249px;
     position: relative;
+    border: 1px solid #F3D5BD;
 }
 div.view h2 {
-    margin-bottom: 0px;
+    margin: 0px;
 }
 div.view p {
     margin-bottom: 5px;
     font-size: 10px;
 }
-
+a {
+    color: #628B61;
+}
 /** form elements **/
 div.row label {
-    text-align: right;
+    text-align: left;
     float:left;
     padding-right: 30px;
-    min-width: 50px;
+    min-width: 70px;
     line-height: 30px;
 }
+ div.row input {
+	test-align: left;
+    min-width: 70px;
+    line-height: 30px;
+}
+ div.row textarea {
+ width: auto;
+ }
 div.form div.saved {
     background: #E6EFC2;
-    border: 1px solid #4F651B;
+    border: 1px solid #628B61;
     padding: 20px;
 }
 div.form div.failure {
@@ -40,6 +52,7 @@ div.form div.failure {
     border: 1px solid  #C00;
     padding: 20px;
 }
+
 /** buttons and widgets **/
 .button {
     background: white url(/css/bg.gif) repeat-x left top;
@@ -67,17 +80,21 @@ div.form div.failure {
     width: 100%;
     margin:0 auto;
     text-align: center;
+    min-height: 200px;
 }
 .caption {
     display: none;
     width: 88%;
-    margin: 0 15px 16px 12px;
+    margin: 0 ;
     height: 40px;
     position: absolute;
-    bottom: 10px;
+    bottom: 50px;
     left: 0px;
     background: url(../images/bg.png);
     text-align: center;
+}
+.list-view .pager {
+    clear:both;
 }
 /**CB-5.5**/
 .imgComment {
@@ -149,3 +166,7 @@ div.commentFooter {
     color: #CECECE;
 }
 
+div.block {
+    float:left;
+    margin-right: 20px;
+}
