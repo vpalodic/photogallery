@@ -16,10 +16,13 @@
  * The followings are the available model relations:
  * @property User $owner
  * @property Photo[] $photos
- * $property integer $photoCount
+ * @property integer $photoCount
+ * @property Option[] $categories
  */
 class Album extends CActiveRecord
 {
+
+    private $_oldTags;
 
     /**
      * @return string the associated database table name
@@ -53,6 +56,9 @@ class Album extends CActiveRecord
                 'description',
                 'match',
                 'pattern' => '/[\w]+/u'),
+            array(
+                'category_id',
+                'checkCategory'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array(
@@ -60,6 +66,31 @@ class Album extends CActiveRecord
                 'safe',
                 'on' => 'search'),
         );
+    }
+
+    /**
+     * Custom validation for the category_id
+     * Validates that it exists in the options table
+     * @param string $attribute
+     * @param integer $params
+     * @return boolean
+     */
+    public function checkCategory($attribute, $params)
+    {
+        if(empty($this->$attribute)) {
+            return true;
+        }
+
+        $command = Yii::app()->db->createCommand("SELECT * FROM tbl_option WHERE option_name = 'CATEGORY' AND id = :opvalue");
+        $command->bindValue(':opvalue', $this->$attribute, PDO::PARAM_STR);
+        $result = $command->queryRow();
+
+        if($result) {
+            return true;
+        } else {
+            $this->addError($attribute, "Invalid Category - Please select a known category");
+            return false;
+        }
     }
 
     /**
@@ -82,6 +113,11 @@ class Album extends CActiveRecord
                 self::STAT,
                 'Photo',
                 'album_id'),
+            'categories' => array(
+                self::BELONGS_TO,
+                'Option',
+                'category_id',
+                'on' => 'option_name = \'CATEGORY\''),
         );
     }
 
@@ -126,6 +162,53 @@ class Album extends CActiveRecord
             'shareable' => 'Shareable',
             'created_dt' => 'Created Date',
         );
+    }
+
+    /**
+     * @return array a list of links that point to the post list filtered by every tag of this post
+     */
+    public function getTagLinks()
+    {
+        $links = array();
+        foreach(Tag::string2array($this->tags) as $tag)
+            $links[] = CHtml::link(CHtml::encode($tag), array('album/search', 'tag' => $tag), array('class' => 'btn btn-small'));
+        return $links;
+    }
+
+    /**
+     * Normalizes the user-entered tags.
+     */
+    public function normalizeTags($attribute, $params)
+    {
+        $this->tags = Tag::array2string(array_unique(Tag::string2array($this->tags)));
+    }
+
+    /**
+     * This is invoked when a record is populated with data from a find() call.
+     */
+    protected function afterFind()
+    {
+        parent::afterFind();
+        $this->_oldTags = $this->tags;
+    }
+
+    /**
+     * This is invoked after the record is saved.
+     */
+    protected function afterSave()
+    {
+        parent::afterSave();
+        Tag::model()->updateFrequency($this->_oldTags, $this->tags);
+    }
+
+    /**
+     * This is invoked after the record is deleted.
+     */
+    protected function afterDelete()
+    {
+        parent::afterDelete();
+        Comment::model()->deleteAll('album_id=' . $this->id);
+        Tag::model()->updateFrequency($this->tags, '');
     }
 
     /**

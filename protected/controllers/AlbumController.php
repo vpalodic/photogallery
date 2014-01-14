@@ -7,7 +7,7 @@ class AlbumController extends Controller
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
      * using two-column layout. See 'protected/views/layouts/column2.php'.
      */
-    public $layout = '//layouts/column2';
+    public $layout = '//layouts/column1';
 
     /**
      * @return array action filters
@@ -17,6 +17,7 @@ class AlbumController extends Controller
         return array(
             'accessControl', // perform access control for CRUD operations
             'postOnly + delete', // we only allow deletion via POST request
+            'checkOwner + update, upload, delete',
         );
     }
 
@@ -32,7 +33,8 @@ class AlbumController extends Controller
                 'allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array(
                     'index',
-                    'view'),
+                    'view',
+                    'search',),
                 'users' => array(
                     '*'),
             ),
@@ -41,15 +43,17 @@ class AlbumController extends Controller
                 'actions' => array(
                     'create',
                     'update',
-                    'upload',),
+                    'upload',
+                    'admin',
+                    'delete',
+                    'suggestTags',),
                 'users' => array(
                     '@'),
             ),
             array(
                 'allow', // allow admin user to perform 'admin' and 'delete' actions
                 'actions' => array(
-                    'admin',
-                    'delete'),
+                    '',),
                 'users' => array(
                     'admin'),
             ),
@@ -59,6 +63,60 @@ class AlbumController extends Controller
                     '*'),
             ),
         );
+    }
+
+    /**
+     * Check the user owns this record
+     * This method is used by the 'accessControl' filter.
+     * @return array access control rules
+     */
+    public function filtercheckOwner($filterChain)
+    {
+        if($id = Yii::app()->getRequest()->getParam('id')) {
+            $model = $this->loadModel($id);
+            if($model->owner_id == Yii::app()->user->id)
+                $filterChain->run();
+            else
+                throw new CHttpException(403, "You are not authorized to view this album");
+        }
+    }
+
+    /**
+     * Suggests tags based on the current user input.
+     * This is called via AJAX when the user is entering the tags input.
+     */
+    public function actionSuggestTags()
+    {
+        if(isset($_GET['q']) && ($keyword = trim($_GET['q'])) !== '') {
+            $tags = Tag::model()->suggestTags($keyword);
+            if($tags !== array())
+                echo implode("\n", $tags);
+        }
+    }
+
+    /**
+     * Search tags based on the current user input.
+     */
+    public function actionSearch()
+    {
+        if(isset($_GET['tag'])) {
+            $search = $_GET['tag'];
+        }
+
+        $criteria = new CDbCriteria;
+
+        $criteria->addSearchCondition('tags', $search);
+
+        $criteria->scopes = 'shareable';
+
+        $dataProvider = new CActiveDataProvider('Album', array(
+            'criteria' => $criteria,
+        ));
+
+        $this->render('index', array(
+            'dataProvider' => $dataProvider,
+            'tags' => $search,
+        ));
     }
 
     /**
@@ -167,7 +225,11 @@ class AlbumController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new CActiveDataProvider('Album');
+        $dataProvider = new CActiveDataProvider('Album', array(
+            'criteria' => array(
+                'with' => array('photos', 'photoCount',),
+            ),
+        ));
         $this->render('index', array(
             'dataProvider' => $dataProvider,
         ));

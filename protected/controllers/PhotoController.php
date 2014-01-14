@@ -32,7 +32,8 @@ class PhotoController extends Controller
                 'allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array(
                     'index',
-                    'view'),
+                    'view',
+                    'search',),
                 'users' => array(
                     '*'),
             ),
@@ -40,15 +41,17 @@ class PhotoController extends Controller
                 'allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array(
                     'create',
-                    'update'),
+                    'update',
+                    'admin',
+                    'delete',
+                    'suggestTags',),
                 'users' => array(
                     '@'),
             ),
             array(
                 'allow', // allow admin user to perform 'admin' and 'delete' actions
                 'actions' => array(
-                    'admin',
-                    'delete'),
+                    '',),
                 'users' => array(
                     'admin'),
             ),
@@ -61,13 +64,38 @@ class PhotoController extends Controller
     }
 
     /**
+     * Suggests tags based on the current user input.
+     * This is called via AJAX when the user is entering the tags input.
+     */
+    public function actionSuggestTags()
+    {
+        if(isset($_GET['q']) && ($keyword = trim($_GET['q'])) !== '') {
+            $tags = Tag::model()->suggestTags($keyword);
+            if($tags !== array())
+                echo implode("\n", $tags);
+        }
+    }
+
+    /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
      */
     public function actionView($id)
     {
+        $model = $this->loadModel($id);
+        $comment = new Comment;
+
+        if(isset($_POST['Comment'])) {
+            $comment->attributes = $_POST['Comment'];
+
+            if($model->addComment($comment)) {
+                $this->refresh();
+            }
+        }
+
         $this->render('view', array(
-            'model' => $this->loadModel($id),
+            'model' => $model,
+            'comment' => $comment,
         ));
     }
 
@@ -152,7 +180,11 @@ class PhotoController extends Controller
     {
         $this->layout = '//layouts/column1';
 
-        $dataProvider = new CActiveDataProvider('Photo');
+        $dataProvider = new CActiveDataProvider('Photo', array(
+            'criteria' => array(
+                'with' => array('comments', 'commentCount',),
+            ),
+        ));
         $this->render('index', array(
             'dataProvider' => $dataProvider,
         ));

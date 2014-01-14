@@ -21,7 +21,7 @@
     </div>
     <div class="imgIcons">
         <?php
-        echo "<span class='textIcon'>{$data->commentCount}</span>";
+        echo CHtml::link(($data->commentCount == 0) ? '+' : $data->commentCount, $this->createUrl('/photo/view', array('id' => $data->id)), array('class' => 'textIcon'));
         ?>
     </div>
 

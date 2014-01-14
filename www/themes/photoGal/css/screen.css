@@ -12,7 +12,7 @@ div.view {
     float:left;
     background: #F7F7F7;
     margin-right: 20px;
-    min-height: 249px;
+    min-height: 200px;
     position: relative;
     border: 1px solid #F3D5BD;
 }
@@ -80,15 +80,15 @@ div.form div.failure {
     width: 100%;
     margin:0 auto;
     text-align: center;
-    min-height: 200px;
+    min-height: 175px;
 }
 .caption {
     display: none;
-    width: 88%;
+    width: 100%;
     margin: 0 ;
     height: 40px;
     position: absolute;
-    bottom: 50px;
+    bottom: 35px;
     left: 0px;
     background: url(../images/bg.png);
     text-align: center;
@@ -170,3 +170,8 @@ div.block {
     float:left;
     margin-right: 20px;
 }
+
+div.search{margin-top: -48px;}
+div.search input[type="text"]{font-size: 10px; height: 14px; width: 100px;}
+div.search input[type="submit"] { margin-right: 10px;}
+

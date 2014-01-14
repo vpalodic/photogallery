@@ -1,35 +1,43 @@
 <?php
-/* @var $this PhotoController */
-/* @var $model Photo */
-if($this instanceof PhotoController) {
-$this->breadcrumbs=array(
-	'Photos'=>array('index'),
-	$model->id,
+$this->breadcrumbs = array(
+    'Albums' => array('/album/index'),
+    $model->album->name . ' Album' => array('/album/view', 'id' => $model->album->id),
+    ($model->caption != '') ? $model->caption : 'Photo',
 );
-
-$this->menu=array(
-	array('label'=>'List Photo', 'url'=>array('index')),
-	array('label'=>'Create Photo', 'url'=>array('create')),
-	array('label'=>'Update Photo', 'url'=>array('update', 'id'=>$model->id)),
-	array('label'=>'Delete Photo', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
-	array('label'=>'Manage Photo', 'url'=>array('admin')),
-);
-}
 ?>
 
-<h1>View Photo #<?php echo $model->id; ?></h1>
+<?php
+$this->renderPartial('_photo', array(
+    'data' => $model,
+));
+?>
 
-<?php $this->widget('zii.widgets.CDetailView', array(
-	'data'=>$model,
-	'attributes'=>array(
-		'id',
-		'album_id',
-		'filename',
-		'caption',
-		'alt_text',
-		'tags',
-		'sort_order',
-		'created_dt',
-		'lastupdate_dt',
-	),
-)); ?>
+<div id="comments">
+    <?php if($model->commentCount > 0): ?>
+        <h3>
+            <?php echo ($model->commentCount > 1) ? $model->commentCount . ' comments' : 'One comment'; ?>
+        </h3>
+
+        <?php
+        foreach($model->comments as $data) {
+            $this->renderPartial('/comment/_view', array(
+                'data' => $data
+            ));
+        }
+        ?>
+
+    <?php endif; ?>
+
+    <h3>Leave a Comment</h3>
+
+    <?php
+    if(!Yii::app()->user->isGuest)
+        $this->renderPartial('/comment/_form', array(
+            'model' => $comment,
+        ));
+    else
+        echo '<span class="loggedIn">You must be logged in to leave a comment</span>';
+    ?>
+
+</div><!-- comments -->
+

@@ -28,13 +28,21 @@
     <div class="block">
         <div class="row">
             <?php echo $form->labelEx($model, 'name'); ?>
-            <?php echo $form->textField($model, 'name', array('size' => 50, 'maxlength' => 255)); ?>
+            <?php echo $form->textField($model, 'name', array('size' => 60, 'maxlength' => 255)); ?>
             <?php echo $form->error($model, 'name'); ?>
         </div>
 
         <div class="row">
             <?php echo $form->labelEx($model, 'tags'); ?>
-            <?php echo $form->textField($model, 'tags', array('size' => 50, 'maxlength' => 255)); ?>
+            <?php
+            $this->widget('CAutoComplete', array(
+                'model' => $model,
+                'attribute' => 'tags',
+                'url' => array('suggestTags'),
+                'multiple' => true,
+                'htmlOptions' => array('size' => 50),
+            ));
+            ?>
             <?php echo $form->error($model, 'tags'); ?>
         </div>
 
@@ -43,11 +51,19 @@
             <?php echo $form->checkBox($model, 'shareable'); ?>
             <?php echo $form->error($model, 'shareable'); ?>
         </div>
+
+        <div class="row">
+            <?php echo $form->labelEx($model, 'category_id'); ?>
+            <?php
+            echo CHtml::activeDropDownList($model, 'category_id', CHtml::listData(Option::model()->findAll('option_name = :opname', array(':opname' => 'CATEGORY')), 'id', 'option_value'), array('empty' => '(Select)'));
+            ?>
+            <?php echo $form->error($model, 'category_id'); ?>
+        </div>
     </div>
     <div class="block">
         <div class="row">
             <?php echo $form->labelEx($model, 'description'); ?>
-            <?php echo $form->textArea($model, 'description', array('cols' => 50, 'rows' => 12)); ?>
+            <?php echo $form->textArea($model, 'description', array('cols' => 60, 'rows' => 12)); ?>
             <?php echo $form->error($model, 'name'); ?>
         </div>
     </div>

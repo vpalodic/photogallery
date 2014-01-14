@@ -1,20 +1,30 @@
 <?php
+
 /* @var $this AlbumController */
 /* @var $dataProvider CActiveDataProvider */
 
-$this->breadcrumbs=array(
-	'Albums',
+$this->breadcrumbs = array(
+    'Albums',
 );
 
-$this->menu=array(
-	array('label'=>'Create Album', 'url'=>array('create')),
-	array('label'=>'Manage Album', 'url'=>array('admin')),
+$this->menu = array(
+    array('label' => 'Create Album', 'url' => array('create')),
+    array('label' => 'Manage Album', 'url' => array('admin')),
 );
 ?>
 
-<h1>Albums</h1>
+<?php
 
-<?php $this->widget('zii.widgets.CListView', array(
-	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
-)); ?>
+if(isset($tags)) {
+    echo "<h1>Albums matching tags: " . $tags . "</h1>";
+} else {
+    echo "<h1>Albums</h1>";
+}
+?>
+<?php
+
+$this->widget('zii.widgets.CListView', array(
+    'dataProvider' => $dataProvider,
+    'itemView' => '_view',
+));
+?>

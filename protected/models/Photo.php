@@ -22,6 +22,8 @@
 class Photo extends CActiveRecord
 {
 
+    private $_oldTags;
+
     /**
      *
      * @var string overrides the uploads path parameter in the main config
@@ -54,6 +56,18 @@ class Photo extends CActiveRecord
         );
     }
 
+    public function behaviors()
+    {
+        return array(
+            'CTimestampBehavior' => array(
+                'class' => 'zii.behaviors.CTimestampBehavior',
+                'createAttribute' => null,
+                'updateAttribute' => 'lastupdate_dt',
+                'setUpdateOnCreate' => true,
+            ),
+        );
+    }
+
     /**
      * @return array relational rules.
      */
@@ -62,7 +76,7 @@ class Photo extends CActiveRecord
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            'comments' => array(self::HAS_MANY, 'Comment', 'photo_id'),
+            'comments' => array(self::HAS_MANY, 'Comment', 'photo_id', 'order' => 'comments.created_dt DESC'),
             'album' => array(self::BELONGS_TO, 'Album', 'album_id'),
             'commentCount' => array(self::STAT, 'Comment', 'photo_id', 'condition' => 'status = :status', 'params' => array(':status' => Comment::STATUS_APPROVED)),
         );
@@ -84,6 +98,53 @@ class Photo extends CActiveRecord
             'created_dt' => 'Created Date',
             'lastupdate_dt' => 'Last Updated Date',
         );
+    }
+
+    /**
+     * @return array a list of links that point to the post list filtered by every tag of this post
+     */
+    public function getTagLinks()
+    {
+        $links = array();
+        foreach(Tag::string2array($this->tags) as $tag)
+            $links[] = CHtml::link(CHtml::encode($tag), array('photo/search', 'tag' => $tag), array('class' => 'btn btn-small'));
+        return $links;
+    }
+
+    /**
+     * Normalizes the user-entered tags.
+     */
+    public function normalizeTags($attribute, $params)
+    {
+        $this->tags = Tag::array2string(array_unique(Tag::string2array($this->tags)));
+    }
+
+    /**
+     * This is invoked when a record is populated with data from a find() call.
+     */
+    protected function afterFind()
+    {
+        parent::afterFind();
+        $this->_oldTags = $this->tags;
+    }
+
+    /**
+     * This is invoked after the record is saved.
+     */
+    protected function afterSave()
+    {
+        parent::afterSave();
+        Tag::model()->updateFrequency($this->_oldTags, $this->tags);
+    }
+
+    /**
+     * This is invoked after the record is deleted.
+     */
+    protected function afterDelete()
+    {
+        parent::afterDelete();
+        Comment::model()->deleteAll('photo_id=' . $this->id);
+        Tag::model()->updateFrequency($this->tags, '');
     }
 
     /**
@@ -128,6 +189,20 @@ class Photo extends CActiveRecord
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
+    }
+
+    /**
+     * Adds a new Comment to this photo
+     * This method will set status, photo_id, and author_id of the comment accordingly
+     * @param Comment $comment The comment to be added
+     * @return boolean whether the comment is saved successfully
+     */
+    public function addComment($comment)
+    {
+        $comment->status = Comment::STATUS_APPROVED;
+        $comment->photo_id = $this->id;
+        $comment->author_id = Yii::app()->user->id;
+        return $comment->save();
     }
 
     /**
