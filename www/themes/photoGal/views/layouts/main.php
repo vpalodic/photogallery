@@ -74,7 +74,7 @@
 
             <div class="search">
                 <?php
-                echo CHtml::form('/album/search', 'GET');
+                echo CHtml::form('/photogallery/album/search', 'GET');
                 echo CHtml::submitButton('go', array('class' => 'btn btn-small btn-success right small'));
                 echo CHtml::textField('tag', '', array('class' => 'right small'));
                 echo CHtml::endForm();

@@ -96,11 +96,12 @@ class User extends CActiveRecord
 	}
 
         /**CB-3.2**/
-        public function fullName() {
-            $fullName=(!empty($this->firstname))? $this->firstname : '';
-            $fullName.=(!empty($this->lastname))?( (!empty($fullName))? " ".$this->lastname : $this->lastname ) : '';
-            return $fullName;
-        }
+    public function getFullName() {
+        $fullName=(!empty($this->firstname))? $this->firstname : '';
+        $fullName.=(!empty($this->lastname))?( (!empty($fullName))? " ".$this->lastname : $this->lastname ) : '';
+        return $fullName;
+    }
+    
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
